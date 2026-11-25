@@ -1,0 +1,16 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+# signing keys and personal SMS data never go in the repo
+*.jks
+*.keystore
+keystore.properties
+*.xlsx
+*.csv
+# screenshots rendered from real SMS stay local
+app/src/test/snapshots/
+.kotlin/
