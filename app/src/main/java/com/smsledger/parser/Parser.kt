@@ -51,7 +51,7 @@ data class Txn(
 }
 
 enum class Direction { DEBIT, CREDIT }
-enum class Kind { NORMAL, CARD_PAYMENT, REVERSAL }
+enum class Kind { NORMAL, CARD_PAYMENT, REVERSAL, MANUAL }
 
 data class Skipped(val sms: Sms, val reason: String)
 data class ParseResult(val txns: List<Txn>, val skipped: List<Skipped>)

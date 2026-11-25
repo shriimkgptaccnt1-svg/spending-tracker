@@ -5,7 +5,7 @@ Everything stays on the phone.
 
 ## Install
 
-1. On your Android phone, open this repo's [`releases/expense-tracker-1.1.apk`](releases/expense-tracker-1.1.apk) and tap **Download** (or "View raw").
+1. On your Android phone, open this repo's [`releases/expense-tracker-1.2.apk`](releases/expense-tracker-1.2.apk) and tap **Download** (or "View raw").
 2. Open the downloaded file. If Android asks, allow **Install unknown apps** for your browser or Files app, then tap **Install**.
 3. Open **Expense tracker** and tap **Allow SMS access**.
 4. Optional: tap **Settings** on the Overview screen and enter your name as banks write it. This only helps label
@@ -20,11 +20,15 @@ unknown developer. Tap **Install anyway**.
   processed as it arrives, and the inbox is re-read whenever you open the app.
 - **Four screens:**
   - **Overview:** month and year pickers (current month by default), total debits and credits, debits by category, credits by type.
-  - **Over ₹10k / Under ₹10k:** debits and credits for the month. Exactly ₹10,000 counts as under.
+  - **Over ₹10k / Under ₹10k:** tap the Debits or Credits tile to see that side for the month. Exactly ₹10,000 counts as under.
     Rows are sorted by bank, then account, then date, with a subtotal per account, to match your bank statements.
     Each row has a small bin icon to delete it (with Undo) and a category button to change its category,
     for that row or for every transaction from that merchant.
-  - **Year:** debits for each month of the chosen year.
+  - **Dashboard:** debits for each month of the chosen year.
+- **Custom dates:** the Custom button next to the month and year shows totals, categories and transactions
+  between any two dates (quick picks: last 7 / 30 days, this month, last 3 months).
+- **Add transaction:** the + Add button on Over / Under ₹10k records cash (or any other) transactions by hand.
+  Tap one later to edit it, or use the bin to delete it. They count in every total.
 - **Counting rules**
   - Credit card bill payments are listed but **not added to debits**, because the card purchases are already counted.
   - Reversed card payments are kept: the debit stays and the reversal is a credit.

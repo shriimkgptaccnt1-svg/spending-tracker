@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import com.smsledger.data.ManualEntry
 import com.smsledger.data.Row
 import com.smsledger.data.SmsScanner
 import com.smsledger.data.Store
@@ -23,6 +24,9 @@ interface LedgerUi {
     val scanning: Boolean
 
     fun monthRows(): List<Row> = rows.filter { it.time.year == year && it.time.monthValue == month }
+
+    fun rowsBetween(from: LocalDate, to: LocalDate): List<Row> =
+        rows.filter { !it.time.toLocalDate().isBefore(from) && !it.time.toLocalDate().isAfter(to) }
 
     fun yearsAvailable(): List<Int> {
         val now = LocalDate.now().year
@@ -42,6 +46,7 @@ class LedgerViewModel(app: Application) : AndroidViewModel(app), LedgerUi {
     override var lastUpdated by mutableStateOf<LocalDateTime?>(null); private set
     override var scanning by mutableStateOf(false); private set
     var ownerName by mutableStateOf(""); private set
+    var accounts by mutableStateOf<List<String>>(emptyList()); private set
 
     init {
         io.execute { val n = store.meta("owner_name") ?: ""; main.post { ownerName = n } }
@@ -53,9 +58,11 @@ class LedgerViewModel(app: Application) : AndroidViewModel(app), LedgerUi {
         io.execute {
             if (rescan) SmsScanner.scan(getApplication())
             val r = store.rows()
+            val acc = store.accounts()
             val now = LocalDateTime.now()
             main.post {
                 rows = r
+                accounts = acc
                 if (rescan) { lastUpdated = now; scanning = false }
             }
         }
@@ -74,6 +81,12 @@ class LedgerViewModel(app: Application) : AndroidViewModel(app), LedgerUi {
         ownerName = name.trim()
         io.execute { store.setMeta("owner_name", name.trim()) }
         refresh()
+    }
+
+    /** Adds a new manual transaction or saves changes to an existing one. */
+    fun saveManual(e: ManualEntry) {
+        io.execute { store.saveManual(e) }
+        refresh(rescan = false)
     }
 
     fun clearAll() {

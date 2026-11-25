@@ -86,28 +86,34 @@ class ScreenshotTest {
                 "Alert! Paid Rs. 20,000.00 For: Credit Card payment From HDFC Bank A/c XX4321 Via Online Banking."),
         )
         val txns = parse(messages, Owner(listOfNotNull(System.getenv("SMS_OWNER")))).txns
+        val cash = Row("m-1", LocalDateTime.parse("2026-11-24T12:00:00"), 420.0, com.smsledger.parser.Direction.DEBIT,
+            "Cash", "Cash", "Vegetable market", com.smsledger.parser.Kind.MANUAL, "Groceries", 1)
         return FakeLedger(txns.map {
             Row(it.id, it.time, it.amount, it.direction, it.account, it.bank, it.party, it.kind, it.category, it.smsCount)
-        })
+        } + cash)
     }
+
+    private val noActions = RowActions({}, {}, {})
 
     @Composable
     private fun Frame(tab: Int, content: @Composable () -> Unit) {
-        MaterialTheme(colorScheme = lightColorScheme(primary = Ink, background = Ground, surface = Ground)) {
+        MaterialTheme(colorScheme = lightColorScheme(primary = Brand, background = Ground, surface = Ground)) {
             Column(Modifier.fillMaxSize().background(Ground)) {
                 Box(Modifier.weight(1f, fill = false)) { content() }
                 NavigationBar(containerColor = Color.White, modifier = Modifier.fillMaxWidth()) {
-                    listOf("Overview" to Icons.Default.Home, "Over ₹10k" to Icons.Default.KeyboardArrowUp,
-                        "Under ₹10k" to Icons.Default.List, "Year" to Icons.Default.DateRange).forEachIndexed { i, (l, ic) ->
-                        NavigationBarItem(selected = tab == i, onClick = {}, icon = { Icon(ic, null) }, label = { Text(l, fontSize = 11.sp) })
+                    listOf("Overview", "Over ₹10k", "Under ₹10k", "Dashboard").forEachIndexed { i, l ->
+                        NavigationBarItem(selected = tab == i, onClick = {}, label = { Text(l, fontSize = 11.sp) },
+                            icon = { if (i == 1) Text(">10K", fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold) else if (i == 2) Text("<10K", fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold) else Icon(Icons.Default.Home, null) },
+                            colors = androidx.compose.material3.NavigationBarItemDefaults.colors(selectedIconColor = BrandDark, selectedTextColor = BrandDark, indicatorColor = BrandLight))
                     }
                 }
             }
         }
     }
 
-    @Test fun overview() { val l = ledger(); paparazzi.snapshot { Frame(0) { OverviewScreen(l) {} } } }
-    @Test fun over10k() { val l = ledger(); paparazzi.snapshot { Frame(1) { TxnListScreen(l, true, {}, {}) } } }
-    @Test fun under10k() { val l = ledger(); paparazzi.snapshot { Frame(2) { TxnListScreen(l, false, {}, {}) } } }
-    @Test fun year() { val l = ledger(); paparazzi.snapshot { Frame(3) { YearScreen(l) } } }
+    @Test fun overview() { val l = ledger(); paparazzi.snapshot { Frame(0) { OverviewScreen(l, {}, {}) } } }
+    @Test fun over10k() { val l = ledger(); paparazzi.snapshot { Frame(1) { TxnListScreen(l, true, noActions) {} } } }
+    @Test fun under10k() { val l = ledger(); paparazzi.snapshot { Frame(2) { TxnListScreen(l, false, noActions) {} } } }
+    @Test fun range() { val l = ledger(); paparazzi.snapshot { Frame(0) { RangeScreen(l, java.time.LocalDate.of(2026, 11, 1), java.time.LocalDate.of(2026, 11, 15), noActions) {} } } }
+    @Test fun dashboard() { val l = ledger(); paparazzi.snapshot { Frame(3) { DashboardScreen(l) } } }
 }

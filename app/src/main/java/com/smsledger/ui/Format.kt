@@ -44,17 +44,28 @@ val Ground = Color(0xFFF4F5F7)
 val Ink = Color(0xFF14171F)
 val Muted = Color(0xFF5B6270)
 val Line = Color(0xFFE3E6EB)
-val Spend = Color(0xFFB8430F)
-val Credit = Color(0xFF1D5FD1)
+val Spend = Color(0xFFC2410C)          // debits: orange
+val Credit = Color(0xFF15803D)         // credits: green
 val NoteBg = Color(0xFFEEF3FD)
 val NoteFg = Color(0xFF123F8F)
+val Brand = Color(0xFF3F51E8)
+val BrandDark = Color(0xFF2F3FC4)
+val BrandLight = Color(0xFFE6E9FF)
+val DebitTile = Color(0xFFFFF5EE)
+val DebitTileBorder = Color(0xFFF8D9C4)
+val CreditTile = Color(0xFFEFF8F2)
+val CreditTileBorder = Color(0xFFCBE8D4)
+val DebitPage = Color(0xFFFDF1E8)
+val CreditPage = Color(0xFFEAF6EE)
 
 val CATEGORY_COLORS = mapOf(
-    "Shopping" to Color(0xFF6B3FD4), "Groceries" to Color(0xFF3F6B22), "UPI to people" to Color(0xFF0F766E),
-    "Food & dining" to Color(0xFFB8430F), "Travel" to Color(0xFF1D5FD1), "Investments" to Color(0xFF14171F),
-    "Own account (likely)" to Color(0xFF7A5AF8), "Health" to Color(0xFFB42318), "Subscriptions & apps" to Color(0xFFA3195B),
-    "Entertainment" to Color(0xFF8A5A00), "Transport" to Color(0xFF3A404C), "Bank charges" to Color(0xFF5B6270),
-    "Insurance" to Color(0xFF0E7490), "Fuel & vehicle" to Color(0xFF9A3412), "Personal care" to Color(0xFFBE185D),
-)
+    "Food & dining" to 0xFFC2410C, "Groceries" to 0xFF3F7D20, "Shopping" to 0xFF7C3AED, "Travel" to 0xFF0369A1,
+    "Transport" to 0xFF475569, "Fuel & vehicle" to 0xFF9A3412, "Health" to 0xFFBE123C, "Personal care" to 0xFFBE185D,
+    "Subscriptions & apps" to 0xFFA21CAF, "Entertainment" to 0xFFA16207, "Insurance" to 0xFF0E7490,
+    "Investments" to 0xFF1E3A8A, "UPI to people" to 0xFF0F766E, "Bank charges" to 0xFF57534E,
+    "Own account (likely)" to 0xFF4F46E5, "Other" to 0xFF6B7280, "Salary" to 0xFF15803D, "Refund" to 0xFF0E7490,
+    "Reversal" to 0xFF0369A1, "Meal allowance" to 0xFF3F7D20, "From people (UPI)" to 0xFF0F766E,
+    "Bank transfer in" to 0xFF1E3A8A, "Dividend" to 0xFFA16207, "Other credit" to 0xFF6B7280,
+).mapValues { Color(it.value) }
 
-fun categoryColor(c: String): Color = CATEGORY_COLORS[c] ?: Color(0xFF8B919C)
+fun categoryColor(c: String): Color = CATEGORY_COLORS[c] ?: Color(0xFF6B7280)

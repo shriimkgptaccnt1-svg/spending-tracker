@@ -26,7 +26,20 @@ data class Row(
 ) {
     val over10k get() = amount > 10_000.0
     val counted get() = kind != Kind.CARD_PAYMENT
+    /** Added by the user (cash etc.); can be edited. */
+    val manual get() = kind == Kind.MANUAL
 }
+
+/** A transaction the user typed in (cash or any other). */
+data class ManualEntry(
+    val id: String,
+    val time: LocalDateTime,
+    val amount: Double,
+    val direction: Direction,
+    val account: String,     // "Cash" or one of the user's accounts
+    val party: String,       // description
+    val category: String,
+)
 
 /**
  * On-phone database:
@@ -34,8 +47,9 @@ data class Row(
  *  deleted           - row ids the user deleted (so re-scans never bring them back)
  *  row_category      - category the user picked for one row
  *  merchant_category - category the user picked for every row of a merchant
+ *  manual            - transactions the user added by hand (cash etc.)
  */
-class Store(context: Context) : SQLiteOpenHelper(context, "ledger.db", null, 1) {
+class Store(context: Context) : SQLiteOpenHelper(context, "ledger.db", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
@@ -46,9 +60,39 @@ class Store(context: Context) : SQLiteOpenHelper(context, "ledger.db", null, 1) 
         db.execSQL("CREATE TABLE row_category(id TEXT PRIMARY KEY, category TEXT)")
         db.execSQL("CREATE TABLE merchant_category(merchant TEXT PRIMARY KEY, category TEXT)")
         db.execSQL("CREATE TABLE meta(k TEXT PRIMARY KEY, v TEXT)")
+        createManual(db)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
+    private fun createManual(db: SQLiteDatabase) {
+        db.execSQL(
+            """CREATE TABLE IF NOT EXISTS manual(id TEXT PRIMARY KEY, time INTEGER, amount REAL, direction TEXT,
+               account TEXT, party TEXT, category TEXT)"""
+        )
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion < 2) createManual(db)
+    }
+
+    /** Adds or updates a transaction the user typed in. */
+    fun saveManual(e: ManualEntry) {
+        val db = writableDatabase
+        db.insertWithOnConflict("manual", null, ContentValues().apply {
+            put("id", e.id)
+            put("time", e.time.toEpochSecond(ZoneOffset.UTC))
+            put("amount", e.amount)
+            put("direction", e.direction.name)
+            put("account", e.account)
+            put("party", e.party)
+            put("category", e.category)
+        }, SQLiteDatabase.CONFLICT_REPLACE)
+        db.delete("row_category", "id = ?", arrayOf(e.id))   // the edited category wins
+    }
+
+    /** The user's accounts seen in SMS, for the "Paid with" choice. */
+    fun accounts(): List<String> =
+        readableDatabase.rawQuery("SELECT DISTINCT account FROM txn WHERE account != '' ORDER BY bank, account", null)
+            .use { c -> buildList { while (c.moveToNext()) add(c.getString(0)) } }
 
     /** Saves parsed transactions. Rows that were later merged into another row are removed. */
     fun upsert(txns: List<Txn>) {
@@ -114,6 +158,25 @@ class Store(context: Context) : SQLiteOpenHelper(context, "ledger.db", null, 1) 
                 )
             }
         }
+        db.rawQuery("SELECT id, time, amount, direction, account, party, category FROM manual", null).use { c ->
+            while (c.moveToNext()) {
+                val id = c.getString(0)
+                if (id in deleted) continue
+                val account = c.getString(4)
+                out += Row(
+                    id = id,
+                    time = LocalDateTime.ofEpochSecond(c.getLong(1), 0, ZoneOffset.UTC),
+                    amount = c.getDouble(2),
+                    direction = Direction.valueOf(c.getString(3)),
+                    account = account,
+                    bank = if (account == "Cash") "Cash" else account.substringBefore(" "),
+                    party = c.getString(5),
+                    kind = Kind.MANUAL,
+                    category = rowCat[id] ?: c.getString(6),
+                    smsCount = 1,
+                )
+            }
+        }
         return out
     }
 
@@ -140,6 +203,6 @@ class Store(context: Context) : SQLiteOpenHelper(context, "ledger.db", null, 1) 
 
     fun clearAll() {
         val db = writableDatabase
-        for (t in listOf("txn", "deleted", "row_category", "merchant_category", "meta")) db.delete(t, null, null)
+        for (t in listOf("txn", "deleted", "row_category", "merchant_category", "meta", "manual")) db.delete(t, null, null)
     }
 }
