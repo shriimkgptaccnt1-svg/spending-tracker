@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "SMS Ledger"
+rootProject.name = "Expense Tracker"
 include(":app")

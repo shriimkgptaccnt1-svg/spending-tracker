@@ -1,13 +1,13 @@
-# SMS Ledger
+# Expense tracker
 
 An Android app that tracks monthly debits and credits by reading bank SMS on the phone.
 Everything stays on the phone.
 
 ## Install
 
-1. On your Android phone, open this repo's [`releases/sms-ledger-1.0.apk`](releases/sms-ledger-1.0.apk) and tap **Download** (or "View raw").
+1. On your Android phone, open this repo's [`releases/expense-tracker-1.1.apk`](releases/expense-tracker-1.1.apk) and tap **Download** (or "View raw").
 2. Open the downloaded file. If Android asks, allow **Install unknown apps** for your browser or Files app, then tap **Install**.
-3. Open **SMS Ledger** and tap **Allow SMS access**.
+3. Open **Expense tracker** and tap **Allow SMS access**.
 4. Optional: tap **Settings** on the Overview screen and enter your name as banks write it. This only helps label
    transfers between your own accounts as "Own account (likely)".
 

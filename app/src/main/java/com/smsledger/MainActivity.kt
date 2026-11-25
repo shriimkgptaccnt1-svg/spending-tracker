@@ -141,7 +141,7 @@ private fun SettingsDialog(vm: LedgerViewModel, onClose: () -> Unit) {
 @Composable
 private fun PermissionScreen(onAllow: () -> Unit) {
     Column(Modifier.fillMaxSize().background(Ground).padding(24.dp), verticalArrangement = Arrangement.Center) {
-        Text("SMS Ledger", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = Ink)
+        Text("Expense tracker", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = Ink)
         Spacer(Modifier.height(12.dp))
         Text(
             "To track your debits and credits, allow the app to read your SMS. It only reads bank, card and meal-card " +
